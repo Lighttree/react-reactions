@@ -1,0 +1,6 @@
+.reaction-picker {
+    position: absolute;
+    will-change: transform;
+    top: 0px;
+    left: 0px;
+}

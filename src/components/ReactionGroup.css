@@ -1,0 +1,35 @@
+.reaction-group {
+    font-size: 11px;
+    min-height: 24px;
+    padding: 4px 6px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: top;
+    background: rgba(29, 28, 29, 0.04);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.reaction-group:hover {
+    box-shadow: inset 0 0 0 1px rgba(29, 28, 29, 0.5);
+    background: #fff;
+}
+
+.reaction-group:active {
+    transform: scale(0.94);
+}
+
+.reaction-group__count {
+    color: #1d1c1d;
+    padding: 0 1px 0 3px;
+}
+
+.reaction-group--reacted {
+    background: #e8f5fa;
+}
+
+.reaction-group--reacted:not(.c-button--focus-visible),
+.reaction-group--reacted:not(.focus-ring) {
+    box-shadow: inset 0 0 0 1px #1d9bd1;
+}

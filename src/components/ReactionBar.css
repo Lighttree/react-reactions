@@ -1,0 +1,31 @@
+.reaction-bar {
+    display: flex;
+}
+
+.reaction-bar__item {
+    margin-right: 5px;
+}
+
+.reaction-bar__add {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.reaction-bar:hover .reaction-bar__add {
+    opacity: 1;
+    transition: none;
+}
+
+.reaction-tooltip {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI',
+        'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol';
+    color: rgb(255, 255, 255);
+    background-color: rgba(33, 33, 33, 0.9);
+    font-size: 0.8em;
+    z-index: 999;
+    padding: 0.3rem;
+    border-radius: 0.25rem;
+}
