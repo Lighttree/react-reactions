@@ -1,5 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import reacrtionService from '../reactionService';
 
 const mock = new MockAdapter(axios);
 let reactions = [
@@ -13,7 +14,6 @@ let reactions = [
             skin: 4,
             native: '🏊🏽‍♀️'
         },
-        reacted: false,
         persons: [
             {
                 name: 'Viktor Busko',
@@ -39,7 +39,6 @@ let reactions = [
             skin: 3,
             native: '🎅🏼'
         },
-        reacted: false,
         persons: [
             {
                 name: 'Viktor Busko',
@@ -62,20 +61,18 @@ mock.onPost('/award-service/v1/award/123456/reaction').reply(function(config) {
     if (!foundReaction) {
         reactions.push({
             reaction: JSON.parse(config.data),
-            reacted: true,
             persons: [
                 {
                     name: 'John Doe',
-                    id: 8
+                    id: 1234
                 }
             ]
         });
     } else {
-        if (foundReaction.reacted === false) {
-            foundReaction.reacted = true;
+        if (!reacrtionService.isReacted(foundReaction, 1234)) {
             foundReaction.persons.push({
                 name: 'John Doe',
-                id: 8
+                id: 1234
             });
         }
     }
@@ -95,9 +92,8 @@ mock.onDelete('/award-service/v1/award/123456/reaction').reply(function(
                 reaction.reaction.colons !== foundReaction.reaction.colons
         );
     } else {
-        foundReaction.reacted = false;
         foundReaction.persons = foundReaction.persons.filter(
-            person => person.name !== 'John Doe'
+            person => person.id !== 1234
         );
     }
 

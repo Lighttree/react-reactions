@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 import { Popover, PopoverDisclosure, usePopoverState } from 'reakit/Popover';
+import 'focus-visible';
 
-import reactionApi from '../services/api/reactionApi';
-import '../services/api/reactionMock';
+import reactionService from '../services/reactionService';
 import './Reactions.css';
 import ReactionBar from './ReactionBar';
+import customEmojis from './customEmojis';
 
 export default function Reactions({ belongsTo, entityId, personId }) {
     const [reactions, setReactions] = useState([]);
     const popover = usePopoverState();
     useEffect(() => {
-        reactionApi
-            .findAllByHostEntityId({
+        reactionService
+            .getReactions({
                 belongsTo,
                 entityId,
                 personId
@@ -23,51 +24,26 @@ export default function Reactions({ belongsTo, entityId, personId }) {
             });
     }, [belongsTo, entityId, personId]);
 
-    /**
-     * Updates Reactions in list.
-     * @param {Object} reaction currently selected Reaction.
-     */
-    const handleReactionsSelect = reaction => {
-        let reactionsUpdate;
-
-        if (reaction.reacted) {
-            reactionsUpdate = reactionApi.deleteReaction({
+    const updateReaction = (reaction, onBeforeUpdate = () => {}) => {
+        reactionService
+            .updateReaction({
                 belongsTo,
                 entityId,
                 personId,
-                reaction
+                reaction,
+                onBeforeUpdate
+            })
+            .then(data => {
+                setReactions(data);
             });
-        } else {
-            reactionsUpdate = reactionApi.postReaction({
-                belongsTo,
-                entityId,
-                personId,
-                reaction
-            });
-        }
-
-        reactionsUpdate.then(data => {
-            setReactions(data);
-        });
-    };
-
-    /**
-     * Converts plain Emoji object to Reaction by adding required fields.
-     * @param {Object} emoji Emoji object from emoji-mart.
-     */
-    const convertToReaction = emoji => {
-        return {
-            reaction: emoji,
-            reacted: undefined,
-            persons: []
-        };
     };
 
     return (
         <div>
             <ReactionBar
                 reactions={reactions}
-                onReactionClick={handleReactionsSelect}
+                personId={personId}
+                onReactionClick={updateReaction}
                 onAddClick={popover.toggle}
             >
                 <PopoverDisclosure
@@ -83,8 +59,12 @@ export default function Reactions({ belongsTo, entityId, personId }) {
                 className="reaction-picker"
             >
                 <Picker
+                    custom={customEmojis}
                     onSelect={emoji => {
-                        handleReactionsSelect(convertToReaction(emoji));
+                        updateReaction(
+                            reactionService.convertToReaction(emoji),
+                            popover.hide
+                        );
                     }}
                 />
             </Popover>

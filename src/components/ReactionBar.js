@@ -4,20 +4,12 @@ import { Tooltip, TooltipReference, useTooltipState } from 'reakit/Tooltip';
 import ReactionGroup from './ReactionGroup';
 import './ReactionBar.css';
 
-/**
- * Format persons collection to show information in reaction tooltip.
- * Who reacted with particular reaction.
- * @param {Array} persons array.
- */
-function formatTooltipInfo(persons) {
-    if (persons.length === 2) {
-        return persons.map(person => person.name).join(' and ');
-    }
-
-    return persons.map(person => person.name).join(', ');
-}
-
-export default function ReactionBar({ reactions, onReactionClick, children }) {
+export default function ReactionBar({
+    reactions,
+    onReactionClick,
+    personId,
+    children
+}) {
     const tooltip = useTooltipState();
     const [hoveredReaction, setHoveredReaction] = useState(null);
 
@@ -25,12 +17,24 @@ export default function ReactionBar({ reactions, onReactionClick, children }) {
         onReactionClick && onReactionClick(reaction);
     };
 
+    /**
+     * Format persons collection to show information in reaction tooltip.
+     * Who reacted with particular reaction.
+     * @param {Array} persons array.
+     */
+    function formatTooltipInfo(persons, personId) {
+        const names = persons.map(person =>
+            person.id.toString() === personId ? 'You' : person.name
+        );
+        return names.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    }
+
     return (
         <React.Fragment>
             <div className="reaction-bar">
                 <Tooltip {...tooltip} className="reaction-tooltip">
                     {hoveredReaction &&
-                        formatTooltipInfo(hoveredReaction.persons)}
+                        formatTooltipInfo(hoveredReaction.persons, personId)}
                 </Tooltip>
                 {reactions.map(reaction => {
                     return (
