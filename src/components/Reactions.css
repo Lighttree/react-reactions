@@ -5,10 +5,3 @@
 .js-focus-visible :focus:not(.focus-visible) {
     outline: none;
 }
-
-.reaction-picker {
-    position: absolute;
-    will-change: transform;
-    top: 0px;
-    left: 0px;
-}

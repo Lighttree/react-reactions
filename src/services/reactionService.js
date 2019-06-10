@@ -7,18 +7,13 @@ function getReactions({ belongsTo, entityId, personId }) {
             entityId,
             personId
         })
-        .then(reactions => Promise.resolve(makeExtendedReactions(reactions, personId)));
+        .then(reactions =>
+            Promise.resolve(makeExtendedReactions(reactions, personId))
+        );
 }
 
-function updateReaction({
-    belongsTo,
-    entityId,
-    personId,
-    reaction,
-    onBeforeUpdate = () => {}
-}) {
+function updateReaction({ belongsTo, entityId, personId, reaction }) {
     let updateRequest;
-    onBeforeUpdate();
 
     if (isReacted(reaction, personId)) {
         updateRequest = reactionApi.deleteReaction({
@@ -64,6 +59,43 @@ function convertToReaction(emoji) {
         reaction: emoji,
         persons: []
     };
-};
+}
 
-export default { getReactions, updateReaction, isReacted, convertToReaction };
+/**
+ * @note Experemental feature.
+ * This is to improve UX of Reactions. It updates Reactions collection state,
+ * `before` it actually recieve response from backend. This allows UI to respond
+ * faster. It has a lot of unstable behavior.
+ * @param {Number} personId current user identifier.
+ * @param {Array} reactions Reactions collection.
+ * @param {Object} reaction Currently selected reaction.
+ */
+function unstable_optimisticUpdate(personId, reactions, reaction) {
+    const reactionIndex = reactions.indexOf(reaction);
+    const existentReaction = reactionIndex !== -1;
+
+    if (!existentReaction) {
+        return [...reactions, reaction];
+    }
+
+    if (reaction.reacted) {
+        if (reaction.persons.length === 1) {
+            reactions.splice(reactionIndex, 1);
+        } else {
+            reaction.reacted = false;
+            reaction.persons.filter(person => person.id !== personId);
+        }
+    } else {
+        reaction.reacted = true;
+    }
+
+    return reactions;
+}
+
+export default {
+    getReactions,
+    updateReaction,
+    isReacted,
+    convertToReaction,
+    unstable_optimisticUpdate
+};

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Tooltip, TooltipReference, useTooltipState } from 'reakit/Tooltip';
+import React from 'react';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import ReactionGroup from './ReactionGroup';
 import './ReactionBar.css';
@@ -10,9 +10,6 @@ export default function ReactionBar({
     personId,
     children
 }) {
-    const tooltip = useTooltipState();
-    const [hoveredReaction, setHoveredReaction] = useState(null);
-
     const handleReactionClick = reaction => {
         onReactionClick && onReactionClick(reaction);
     };
@@ -30,31 +27,23 @@ export default function ReactionBar({
     }
 
     return (
-        <React.Fragment>
-            <div className="reaction-bar">
-                <Tooltip {...tooltip} className="reaction-tooltip">
-                    {hoveredReaction &&
-                        formatTooltipInfo(hoveredReaction.persons, personId)}
-                </Tooltip>
-                {reactions.map(reaction => {
-                    return (
-                        <TooltipReference
-                            {...tooltip}
-                            key={reaction.reaction.colons}
+        <div className="reaction-bar">
+            {reactions.map(reaction => {
+                return (
+                    <Tooltip
+                        placement="top"
+                        title={formatTooltipInfo(reaction.persons, personId)}
+                        key={reaction.reaction.colons}
+                    >
+                        <ReactionGroup
+                            reaction={reaction}
                             className="reaction-bar__item"
-                            onMouseEnter={() => setHoveredReaction(reaction)}
-                            onMouseLeave={() => setHoveredReaction(null)}
-                        >
-                            <ReactionGroup
-                                key={reaction.reaction.colons}
-                                reaction={reaction}
-                                onReactionClick={handleReactionClick}
-                            />
-                        </TooltipReference>
-                    );
-                })}
-                {children}
-            </div>
-        </React.Fragment>
+                            onReactionClick={handleReactionClick}
+                        />
+                    </Tooltip>
+                );
+            })}
+            {children}
+        </div>
     );
 }

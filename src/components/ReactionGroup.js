@@ -4,17 +4,36 @@ import 'emoji-mart/css/emoji-mart.css';
 
 import './ReactionGroup.css';
 
-export default function ReactionGroup({ reaction, onReactionClick }) {
-    const handleClick = () => {
-        onReactionClick && onReactionClick(reaction);
+class ReactionGroup extends React.Component {
+    handleClick = e => {
+        this.props.onReactionClick &&
+            this.props.onReactionClick(this.props.reaction, e);
     };
 
-    return (
-        <button type="button" className={`reaction-group ${reaction.reacted ? 'reaction-group--reacted' : ''}`} onClick={handleClick}>
-            <Emoji emoji={reaction.reaction} size={16} />
-            <span className="reaction-group__count">
-                {reaction.persons.length}
-            </span>
-        </button>
-    );
+    render() {
+        // eslint-disable-next-line no-unused-vars
+        const { reaction, onReactionClick, className, ...rest } = this.props;
+
+        let classNames = [
+            'reaction-group',
+            reaction.reacted ? 'reaction-group--reacted' : '',
+            className
+        ].join(' ');
+
+        return (
+            <button
+                {...rest}
+                type="button"
+                className={classNames}
+                onClick={this.handleClick}
+            >
+                <Emoji emoji={reaction.reaction} size={16} />
+                <span className="reaction-group__count">
+                    {reaction.persons.length}
+                </span>
+            </button>
+        );
+    }
 }
+
+export default ReactionGroup;

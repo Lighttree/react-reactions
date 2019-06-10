@@ -28,8 +28,3 @@
 .reaction-group--reacted {
     background: #e8f5fa;
 }
-
-.reaction-group--reacted:not(.c-button--focus-visible),
-.reaction-group--reacted:not(.focus-ring) {
-    box-shadow: inset 0 0 0 1px #1d9bd1;
-}

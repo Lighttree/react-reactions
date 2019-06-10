@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { Popover, PopoverDisclosure, usePopoverState } from 'reakit/Popover';
+import Popover from '@material-ui/core/Popover';
 import 'focus-visible';
 
 import reactionService from '../services/reactionService';
@@ -11,7 +11,7 @@ import customEmojis from './customEmojis';
 
 export default function Reactions({ belongsTo, entityId, personId }) {
     const [reactions, setReactions] = useState([]);
-    const popover = usePopoverState();
+    const [anchorEl, setAnchorEl] = React.useState(null);
     useEffect(() => {
         reactionService
             .getReactions({
@@ -25,49 +25,68 @@ export default function Reactions({ belongsTo, entityId, personId }) {
     }, [belongsTo, entityId, personId]);
 
     const updateReaction = (reaction, onBeforeUpdate = () => {}) => {
+        onBeforeUpdate();
+        setReactions(
+            reactionService.unstable_optimisticUpdate(
+                personId,
+                reactions,
+                reaction
+            )
+        );
+
         reactionService
             .updateReaction({
                 belongsTo,
                 entityId,
                 personId,
-                reaction,
-                onBeforeUpdate
+                reaction
             })
             .then(data => {
                 setReactions(data);
             });
     };
 
+    function handleClose() {
+        setAnchorEl(null);
+    }
+
+    const open = Boolean(anchorEl);
+
     return (
-        <div>
-            <ReactionBar
-                reactions={reactions}
-                personId={personId}
-                onReactionClick={updateReaction}
-                onAddClick={popover.toggle}
+        <ReactionBar
+            reactions={reactions}
+            personId={personId}
+            onReactionClick={updateReaction}
+        >
+            <button
+                onClick={e => setAnchorEl(e.currentTarget)}
+                className="reaction-group reaction-bar__item reaction-bar__add"
             >
-                <PopoverDisclosure
-                    {...popover}
-                    className="reaction-group reaction-bar__item reaction-bar__add"
-                >
-                    Add reaction
-                </PopoverDisclosure>
-            </ReactionBar>
+                Add reaction
+            </button>
             <Popover
-                {...popover}
-                aria-label="Reaction picker"
-                className="reaction-picker"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center'
+                }}
+                transformOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center'
+                }}
             >
                 <Picker
                     custom={customEmojis}
                     onSelect={emoji => {
                         updateReaction(
                             reactionService.convertToReaction(emoji),
-                            popover.hide
+                            setAnchorEl(null)
                         );
                     }}
                 />
             </Popover>
-        </div>
+        </ReactionBar>
     );
 }
